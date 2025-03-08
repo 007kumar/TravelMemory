@@ -1,0 +1,21 @@
+pipeline {
+    agent any
+    stages {
+        stage('Provision Infrastructure') {
+            steps {
+                sh 'terraform init'
+                sh 'terraform apply --auto-approve'
+            }
+        }
+        stage('Deploy Backend') {
+            steps {
+                sh 'ssh -i jenki.pem ubuntu@34.227.191.221 "cd ~/backend && npm install && node server.js"'
+            }
+        }
+        stage('Deploy Frontend') {
+            steps {
+                sh 'ssh -i jenki.pem ubuntu@3.90.232.30 "cd ~/frontend && npm install && npm run build && sudo cp -r build/* /var/www/html/"'
+            }
+        }
+    }
+}
